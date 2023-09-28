@@ -26,7 +26,20 @@ window.addEventListener('DOMContentLoaded', async event => {
     criarDB();
     document.getElementById('btnCadastro').addEventListener('click', adicionarAnotacao);
     document.getElementById('btnCarregar').addEventListener('click', buscarTodasAnotacoes);
+    document.getElementById('btnAlterar').addEventListener('click', mudarAnotacao);
+    document.getElementById('btnExcluir').addEventListener('click', excluirAnot);
 });
+
+async function excluirAnot(titulo) {
+    try {
+        await store.delete(titulo);
+        buscarTodasAnotacoes()
+        console.log('Anotação deletada com sucesso!');
+    } catch (error) {
+        console.error('Erro ao deletar anotação:', error);
+        tx.abort();
+    }
+}
 
 async function buscarTodasAnotacoes(){
     if(db == undefined){
@@ -42,11 +55,18 @@ async function buscarTodasAnotacoes(){
                     <p>Título: ${anotacao.titulo} - ${anotacao.data} </p>
                     <p>Categoria: ${anotacao.categoria}</p>
                     <p>Descrição: ${anotacao.descricao}</p>
+                    <button class="btnExcluir">Excluir</button>
+                    <button class="btnAlterar">Alterar</button>
                    </div>`;
         });
         listagem(divLista.join(' '));
+        const excluirAnot = document.querySelectorAll('.btnExcluir') 
+        excluirAnot.forEach((excluirAnot, index) => {
+            excluirAnot.addEventListener('click', () => excluirAnotacao(anotacoes[index].titulo))
+        });
     }
 }
+
 
 async function adicionarAnotacao() {
     let titulo = document.getElementById("titulo").value;
