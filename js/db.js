@@ -23,23 +23,13 @@ async function criarDB(){
 }
 
 window.addEventListener('DOMContentLoaded', async event => {
-    criarDB();
+    await criarDB();
     document.getElementById('btnCadastro').addEventListener('click', adicionarAnotacao);
     document.getElementById('btnCarregar').addEventListener('click', buscarTodasAnotacoes);
-    document.getElementById('btnAlterar').addEventListener('click', mudarAnotacao);
-    document.getElementById('btnExcluir').addEventListener('click', excluirAnot);
+
 });
 
-async function excluirAnot(titulo) {
-    try {
-        await store.delete(titulo);
-        buscarTodasAnotacoes()
-        console.log('Anotação deletada com sucesso!');
-    } catch (error) {
-        console.error('Erro ao deletar anotação:', error);
-        tx.abort();
-    }
-}
+
 
 async function buscarTodasAnotacoes(){
     if(db == undefined){
@@ -56,17 +46,71 @@ async function buscarTodasAnotacoes(){
                     <p>Categoria: ${anotacao.categoria}</p>
                     <p>Descrição: ${anotacao.descricao}</p>
                     <button class="btnExcluir">Excluir</button>
-                    <button class="btnAlterar">Alterar</button>
+                    <button class="btnAlterar" titulo="${anotacao.titulo}">Alterar</button>
                    </div>`;
         });
         listagem(divLista.join(' '));
-        const excluirAnot = document.querySelectorAll('.btnExcluir') 
-        excluirAnot.forEach((excluirAnot, index) => {
-            excluirAnot.addEventListener('click', () => excluirAnotacao(anotacoes[index].titulo))
+        const excluirAnotacao = document.querySelectorAll('.btnExcluir') 
+        excluirAnotacao.forEach((excluirAnotacao, index) => {
+            excluirAnotacao.addEventListener('click', () => excluirAnot(anotacoes[index].titulo))
         });
+
+        const alterarAnotacao = document.querySelectorAll('.btnAlterar') 
+        alterarAnotacao.forEach(altera => {
+            altera.addEventListener("click", (event) => {
+            const titulo = event.target.getAttribute("titulo");
+            alteracao(titulo, anotacoes);
+        });
+    });
+        };
+
+      
+    }
+
+
+async function excluirAnot(titulo) {
+    const tx = await db.transaction('anotacao', 'readwrite');
+    const store = await tx.objectStore('anotacao');
+    try {
+        await store.delete(titulo);
+        buscarTodasAnotacoes()
+        console.log('Anotação deletada com sucesso!');
+    } catch (error) {
+        console.error('Erro ao deletar anotação:', error);
+        tx.abort();
     }
 }
 
+async function alterarAnot(titulo){
+    const tx = await db.transaction('anotacao', 'readwrite');
+    const store = await tx.objectStore('anotacao');
+    const altanotacao = await store.get(titulo)
+    const Alteracategoria = document.getElementById("Alteracategoria").value
+    const Alteradescricao = document.getElementById("Alteradescricao").value
+    const Alteradata = document.getElementById("Alteradata").value
+
+    altanotacao.categoria =  Alteracategoria
+    altanotacao.data = Alteradata
+    altanotacao.descricao = Alteradescricao
+
+    await store.put(altanotacao)
+    await tx.done
+}
+
+function alteracao(titulo, anotacoes) {
+    const anotacaoAltera = anotacoes.find(param => param.titulo === titulo)
+    let div = document.createElement('div')
+    div.innerHTML = `
+    
+    <input type="text" id="Alteracategoria" placeholder="Categoria" value="${anotacaoAltera.categoria}">
+    <textarea id="Alteradescricao" cols="30" rows="10" placeholder="Descrição" value="${anotacaoAltera.descricao}"></textarea>
+    <input type="date" id="Alteradata" value="${anotacaoAltera.data}"/>
+    <button id="btnAlteracao">Alterar</button>
+    `
+    const btndaAlteracao = div.querySelector('#btnAlteracao')
+    btndaAlteracao.addEventListener('click', () => alterarAnot(titulo))
+    document.getElementById('resultados').appendChild(div)
+}
 
 async function adicionarAnotacao() {
     let titulo = document.getElementById("titulo").value;
