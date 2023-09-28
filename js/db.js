@@ -22,7 +22,7 @@ async function criarDB(){
     }
 }
 
-window.addEventListener('DOMContentLoaded', async event =>{
+window.addEventListener('DOMContentLoaded', async event => {
     criarDB();
     document.getElementById('btnCadastro').addEventListener('click', adicionarAnotacao);
     document.getElementById('btnCarregar').addEventListener('click', buscarTodasAnotacoes);
@@ -38,9 +38,10 @@ async function buscarTodasAnotacoes(){
     if(anotacoes){
         const divLista = anotacoes.map(anotacao => {
             return `<div class="item">
-                    <p>Anotação</p>
-                    <p>${anotacao.titulo} - ${anotacao.data} </p>
-                    <p>${anotacao.descricao}</p>
+                    <p>Anotação ⬇</p>
+                    <p>Título: ${anotacao.titulo} - ${anotacao.data} </p>
+                    <p>Categoria: ${anotacao.categoria}</p>
+                    <p>Descrição: ${anotacao.descricao}</p>
                    </div>`;
         });
         listagem(divLista.join(' '));
@@ -49,14 +50,15 @@ async function buscarTodasAnotacoes(){
 
 async function adicionarAnotacao() {
     let titulo = document.getElementById("titulo").value;
+    let categoria = document.getElementById("categoria").value;
     let descricao = document.getElementById("descricao").value;
     let data = document.getElementById("data").value;
     const tx = await db.transaction('anotacao', 'readwrite')
     const store = tx.objectStore('anotacao');
     try {
-        await store.add({ titulo: titulo, descricao: descricao, data: data });
+        await store.add({ titulo: titulo, categoria: categoria, descricao: descricao, data: data });
         await tx.done;
-        limparCampos();
+        apagarAnot();
         console.log('Registro adicionado com sucesso!');
     } catch (error) {
         console.error('Erro ao adicionar registro:', error);
@@ -64,12 +66,8 @@ async function adicionarAnotacao() {
     }
 }
 
-function limparCampos() {
-    document.getElementById("titulo").value = '';
-    document.getElementById("descricao").value = '';
-    document.getElementById("data").value = '';
-}
-
 function listagem(text){
     document.getElementById('resultados').innerHTML = text;
 }
+
+

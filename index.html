@@ -8,6 +8,9 @@
     <link rel="apple-touch-icon" href="images/pwa-icon-256.png" />
     <link rel="stylesheet" href="css/style.css" />
     <!--viewport para designers responsivos (mobo), content é a configuração-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="white" />
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" href="favicon.ico">
     <script type="module" src="js/main.js"></script>
     <script type="module" src="js/db.js"></script>
@@ -21,6 +24,7 @@
         </div>
         <div id="entrada">
             <input type="text" id="titulo" placeholder="Titulo">
+            <input type="text" id="categoria" placeholder="Categoria">
             <textarea id="descricao" cols="30" rows="10" placeholder="Descrição"></textarea>
             <input type="date" id="data">
             <button id="btnCadastro">Cadastrar</button>
